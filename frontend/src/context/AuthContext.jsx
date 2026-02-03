@@ -284,6 +284,11 @@ export const AuthProvider = ({ children }) => {
     // Check backend session on app load
     useEffect(() => {
         checkAuth();
+        
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+            setUser(JSON.parse(storedUser));
+        }
     }, []);
 
     const checkAuth = async () => {
@@ -338,6 +343,8 @@ export const AuthProvider = ({ children }) => {
         const { data } = await API.post('/auth/login', { email, password });
         localStorage.setItem('token', data.token);
         setUser(data.user);
+        localStorage.setItem("user", JSON.stringify(data.user));
+
     };
 
     // Google OAuth
@@ -385,16 +392,39 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
-    const logout = async () => {
-        await signOut(auth);
-        localStorage.removeItem('token');
-        setUser(null);
-    };
+    // const logout = async () => {
+    //     await signOut(auth);
+    //     localStorage.removeItem('token');
+    //     setUser(null);
+    // };
 
+    // ✅ FIXED: Works for both OAuth and email/password users
+    const logout = async () => {
+        try {
+            // Only sign out from Firebase if user logged in with OAuth
+            const firebaseToken = localStorage.getItem('firebaseToken');
+
+            if (firebaseToken && auth.currentUser) {
+                // User is OAuth user, sign out from Firebase
+                await signOut(auth);
+            }
+            // If no firebaseToken, user logged in with email/password
+            // No Firebase signout needed
+        } catch (error) {
+            // Silently handle Firebase signout errors
+            console.error('Firebase signout error:', error);
+        } finally {
+            // ALWAYS clear tokens and user state (even if Firebase signout fails)
+            localStorage.removeItem('token');
+            localStorage.removeItem('firebaseToken');
+            setUser(null);
+        }
+    };
     return (
         <AuthContext.Provider
             value={{
                 user,
+                setUser,
                 loading,
                 login,
                 loginWithGoogle,

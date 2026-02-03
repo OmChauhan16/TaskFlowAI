@@ -217,11 +217,11 @@ const Login = () => {
                                     name="email"
                                     value={formData.email}
                                     onChange={handleChange}
-                                    className={`w-full px-4 py-3 border rounded-lg outline-none transition ${errors.email
+                                    className={`w-full px-3 py-2 border rounded-lg outline-none transition ${errors.email
                                             ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-transparent'
                                             : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
                                         }`}
-                                    placeholder="john@example.com"
+                                    placeholder=""
                                 />
                                 {errors.email && (
                                     <p className="mt-1 text-sm text-red-600 flex items-center">
@@ -247,11 +247,11 @@ const Login = () => {
                                         name="password"
                                         value={formData.password}
                                         onChange={handleChange}
-                                        className={`w-full px-4 py-3 pr-12 border rounded-lg outline-none transition ${errors.password
+                                        className={`w-full px-3 py-2 pr-12 border rounded-lg outline-none transition ${errors.password
                                                 ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-transparent'
                                                 : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
                                             }`}
-                                        placeholder="••••••••"
+                                        placeholder=""
                                     />
                                     <button
                                         type="button"
@@ -299,7 +299,7 @@ const Login = () => {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                         >
                             {loading ? (
                                 <>

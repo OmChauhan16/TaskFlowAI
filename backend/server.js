@@ -1,5 +1,10 @@
 import express from 'express';
 import dotenv from 'dotenv';
+dotenv.config({
+    path: new URL('.env', import.meta.url)
+});
+console.log('REDIS_URL =>', process.env.REDIS_URL);
+
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -8,14 +13,14 @@ import { Server } from 'socket.io';
 import connectDB from './config/db.js';
 import { errorHandler } from './middleware/error.middleware.js';
 import { initSocket } from './socket/socketHandler.js';
-// import passport from './config/passport.js';
+import { connectRedis } from './config/redis.js';
+import { apiLimiter } from './middleware/rateLimiter.js';
 // Routes
 import authRoutes from './routes/auth.routes.js';
 import userRoutes from './routes/user.routes.js';
 import projectRoutes from './routes/project.routes.js';
 import taskRoutes from './routes/task.routes.js';
 
-dotenv.config();
 
 const app = express();
 const httpServer = createServer(app);
@@ -29,8 +34,35 @@ const io = new Server(httpServer, {
 });
 
 // Connect Database
-connectDB();
+// connectDB();
 
+// Connect to Redis
+const initRedis = async () => {
+    try {
+        await connectRedis();
+    } catch (error) {
+        console.error('❌ Redis connection error:', error);
+        // Don't exit - continue with memory fallback
+        console.warn('⚠️ Running without Redis - using memory storage');
+    }
+};
+
+// Initialize connections
+const initializeApp = async () => {
+    await connectDB();
+    await initRedis();
+};
+
+initializeApp();
+
+// Health check route
+app.get('/health', (req, res) => {
+    res.json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime()
+    });
+});
 // Middleware
 app.use(helmet());
 app.use(cors({
@@ -40,21 +72,7 @@ app.use(cors({
 app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Session configuration (required for passport)
-// app.use(session({
-//     secret: process.env.SESSION_SECRET,
-//     resave: false,
-//     saveUninitialized: false,
-//     cookie: {
-//         secure: process.env.NODE_ENV === 'production',
-//         maxAge: 24 * 60 * 60 * 1000 // 24 hours
-//     }
-// }));
-
-// Initialize Passport
-// app.use(passport.initialize());
-// app.use(passport.session());
+app.use(apiLimiter);
 // Make io accessible to routes
 app.set('io', io);
 

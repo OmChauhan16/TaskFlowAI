@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { Bell, User, Plus } from 'lucide-react';
-
+import { useNavigate } from 'react-router-dom';
+import Header from './Header';
 const Kanban = () => {
     const [activeTab, setActiveTab] = useState('Kanban');
-
+    const navigate = useNavigate();
     // Initial tasks data
     const [columns, setColumns] = useState({
         todo: {
@@ -94,6 +95,19 @@ const Kanban = () => {
         e.preventDefault();
     };
 
+    const handleTabClick = (tab) => {
+        console.log('dadd-98');
+
+        setActiveTab(tab);
+
+        // Navigate to different routes based on tab
+        if (tab === 'Dashboard') {
+            navigate('/dashboard');
+        } else if (tab === 'Kanban') {
+            navigate('/kanban-board');
+        }
+    };
+
     const handleDrop = (targetColumnId) => {
         if (draggedTask && draggedFrom !== targetColumnId) {
             setColumns(prev => {
@@ -118,54 +132,15 @@ const Kanban = () => {
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Header */}
-            <header className="bg-white border-b border-gray-200">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between h-16">
-                        {/* Logo and Brand */}
-                        <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-md">
-                                T
-                            </div>
-                            <h1 className="text-xl font-bold text-gray-900">TaskFlow AI</h1>
-                        </div>
-
-                        {/* Navigation */}
-                        <nav className="hidden md:flex items-center gap-1">
-                            {['Dashboard', 'Kanban', 'Login'].map((tab) => (
-                                <button
-                                    key={tab}
-                                    onClick={() => setActiveTab(tab)}
-                                    className={`px-6 py-2 rounded-lg font-medium transition-all ${activeTab === tab
-                                            ? 'bg-blue-50 text-blue-600'
-                                            : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
-                                        }`}
-                                >
-                                    {tab}
-                                </button>
-                            ))}
-                        </nav>
-
-                        {/* Right Side Icons */}
-                        <div className="flex items-center gap-4">
-                            <button className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors">
-                                <Bell className="w-5 h-5 text-gray-600" />
-                                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                            </button>
-                            <button className="w-9 h-9 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors">
-                                <User className="w-5 h-5 text-gray-600" />
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </header>
+            <Header />
 
             {/* Main Content */}
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Page Header */}
                 <div className="flex items-center justify-between mb-8">
                     {/* <h2 className="text-4xl font-bold text-gray-900">Website Redesign</h2> */}
-                    <button className="flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-xl hover:bg-blue-700 transition-colors font-medium shadow-sm">
-                        <Plus className="w-5 h-5" />
+                    <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-xl hover:bg-blue-700 transition-colors font-medium shadow-sm">
+                        <Plus className="w-4 h-4" />
                         Add Task
                     </button>
                 </div>
