@@ -1,11 +1,24 @@
 import express from 'express';
-import { register, login, getMe } from '../controllers/auth.controller.js';
+import {
+    createProject,
+    getProjects,
+    getProject,
+    updateProject,
+    deleteProject
+} from '../controllers/project.controller.js';
 import { protect } from '../middleware/auth.middleware.js';
 
 const router = express.Router();
 
-router.post('/register', register);
-router.post('/login', login);
-router.get('/me', protect, getMe);
+router.use(protect); // All routes require authentication
+
+router.route('/')
+    .post(createProject)
+    .get(getProjects);
+
+router.route('/:id')
+    .get(getProject)
+    .put(updateProject)
+    .delete(deleteProject);
 
 export default router;

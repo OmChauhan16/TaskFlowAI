@@ -3,8 +3,6 @@ import dotenv from 'dotenv';
 dotenv.config({
     path: new URL('.env', import.meta.url)
 });
-console.log('REDIS_URL =>', process.env.REDIS_URL);
-
 import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -20,10 +18,16 @@ import authRoutes from './routes/auth.routes.js';
 import userRoutes from './routes/user.routes.js';
 import projectRoutes from './routes/project.routes.js';
 import taskRoutes from './routes/task.routes.js';
-
+import dashboardRoutes from './routes/dashboard.routes.js';
+import aiRoutes from './routes/ai.routes.js';
 
 const app = express();
 const httpServer = createServer(app);
+console.log('========== ENV CHECK ==========');
+console.log('CLOUDINARY_CLOUD_NAME:', process.env.CLOUDINARY_CLOUD_NAME);
+console.log('CLOUDINARY_API_KEY:', process.env.CLOUDINARY_API_KEY);
+console.log('CLOUDINARY_API_SECRET:', process.env.CLOUDINARY_API_SECRET ? 'EXISTS' : 'MISSING');
+console.log('==============================');
 
 // Socket.io setup
 const io = new Server(httpServer, {
@@ -81,6 +85,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/tasks', taskRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Health check
 app.get('/health', (req, res) => {

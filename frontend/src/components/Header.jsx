@@ -1,6 +1,6 @@
 import React from 'react'
 import { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Bell } from 'lucide-react';
 import { AuthContext } from '../context/AuthContext';
 
@@ -9,17 +9,36 @@ const Header = () => {
     const { user, logout } = useContext(AuthContext);
     const [showDropdown, setShowDropdown] = useState(false);
     const navigate = useNavigate();
+    const location = useLocation();
+
+    const getActiveTab = () => {
+        if (location.pathname === '/dashboard') return 'Dashboard';
+        if (location.pathname === '/kanban-board') return 'Kanban';
+        if (location.pathname === '/projects') return 'Projects';
+        if (location.pathname === '/tasks') return 'Tasks';
+        return 'Dashboard';
+    };
 
     const handleTabClick = (tab) => {
-        setActiveTab(tab);
-
-        // Navigate to different routes based on tab
-        if (tab === 'Dashboard') {
-            navigate('/dashboard');
-        } else if (tab === 'Kanban') {
-            navigate('/kanban-board');
-        }
+        if (tab === 'Dashboard') navigate('/dashboard');
+        if (tab === 'Kanban') navigate('/kanban-board');
+        if (tab === 'Projects') navigate('/projects');
+        if (tab === 'Tasks') navigate('/tasks');
     };
+
+
+    // const handleTabClick = (tab) => {
+    //     setActiveTab(tab);
+    //     // Navigate to different routes based on tab
+    //     if (tab === 'Dashboard') {
+    //         navigate('/dashboard');
+    //     } else if (tab === 'Kanban') {
+    //         navigate('/kanban-board');
+    //     }
+    //     else if (tab === 'Projects') {
+    //         navigate('/projects');
+    //     }
+    // };
 
     const handleLogout = async () => {
         await logout();
@@ -41,11 +60,11 @@ const Header = () => {
 
                         {/* Navigation */}
                         <nav className="hidden md:flex items-center gap-1">
-                            {['Dashboard', 'Kanban'].map((tab) => (
+                            {['Dashboard', 'Kanban', 'Projects', 'Tasks'].map((tab) => (
                                 <button
                                     key={tab}
                                     onClick={() => handleTabClick(tab)}
-                                    className={`px-6 py-2 rounded-lg font-medium transition-all ${activeTab === tab
+                                    className={`px-6 py-2 rounded-lg font-medium transition-all ${getActiveTab() === tab
                                         ? 'bg-blue-50 text-blue-600'
                                         : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                                         }`}
@@ -58,10 +77,10 @@ const Header = () => {
                         {/* Right Side Icons */}
                         <div className="flex items-center gap-4">
                             {/* Notification Bell */}
-                            <button className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                            {/* <button className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors">
                                 <Bell className="w-5 h-5 text-gray-600" />
                                 <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                            </button>
+                            </button> */}
 
                             {/* Profile Dropdown */}
                             <div className="relative">

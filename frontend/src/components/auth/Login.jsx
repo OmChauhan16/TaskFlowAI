@@ -117,6 +117,8 @@ const Login = () => {
     const handleGithubLogin = async () => {
         try {
             await loginWithGithub();
+            console.log('welcome');
+            
             toast.success('Welcome! 🎉');
             navigate('/dashboard');
         } catch (error) {

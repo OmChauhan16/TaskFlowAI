@@ -465,11 +465,109 @@ export const login = async (req, res) => {
 // @route   POST /api/auth/oauth-login
 // @desc    Login/Register with OAuth (Google/GitHub)
 // @access  Public
+// export const oauthLogin = async (req, res) => {
+//     try {
+//         const authHeader = req.headers.authorization;
+
+//         if (!authHeader || !authHeader.startsWith('Bearer ')) {
+//             return res.status(401).json({
+//                 message: 'Missing Firebase token'
+//             });
+//         }
+
+//         const firebaseToken = authHeader.split(' ')[1];
+
+//         // Verify Firebase ID token
+//         const decoded = await admin.auth().verifyIdToken(firebaseToken);
+
+//         const firebaseUid = decoded.uid;
+//         const email = decoded.email;
+//         const name = decoded.name || decoded.displayName || email?.split('@')[0] || 'User';
+//         const avatar = decoded.picture || '/avatars/avatar1.png';
+
+//         // Determine provider
+//         const rawProvider = decoded.firebase?.sign_in_provider;
+//         let provider = 'email';
+//         if (rawProvider === 'google.com') provider = 'google';
+//         if (rawProvider === 'github.com') provider = 'github';
+
+//         if (!email) {
+//             return res.status(400).json({
+//                 message: 'Email not available from OAuth provider'
+//             });
+//         }
+
+//         // Find or create user
+//         let user = await User.findOne({ email });
+
+//         if (user) {
+//             // Update existing user if Firebase UID not set
+//             if (!user.firebaseUid) {
+//                 user.firebaseUid = firebaseUid;
+//                 user.oauthProvider = provider;
+//                 user.isEmailVerified = true;
+//                 await user.save();
+//             }
+//         } else {
+//             // Create new user (password will be hashed by model)
+//             user = await User.create({
+//                 firebaseUid,
+//                 name,
+//                 email,
+//                 password: Math.random().toString(36).slice(-8),
+//                 avatar,
+//                 oauthProvider: provider,
+//                 isEmailVerified: true
+//             });
+//         }
+
+//         // Generate JWT token
+//         const token = generateToken(user._id);
+
+//         res.json({
+//             success: true,
+//             token,
+//             user: {
+//                 id: user._id,
+//                 name: user.name,
+//                 email: user.email,
+//                 avatar: user.avatar,
+//                 isEmailVerified: user.isEmailVerified,
+//                 oauthProvider: user.oauthProvider
+//             }
+//         });
+//     } catch (error) {
+//         console.error('OAuth login error:', error);
+
+//         // Handle specific Firebase errors
+//         if (error.code === 'auth/id-token-expired') {
+//             return res.status(401).json({
+//                 message: 'Token expired. Please sign in again.'
+//             });
+//         }
+//         if (error.code === 'auth/argument-error') {
+//             return res.status(400).json({
+//                 message: 'Invalid token format'
+//             });
+//         }
+
+//         res.status(500).json({
+//             message: 'OAuth login failed. Please try again.'
+//         });
+//     }
+// };
+
+// controllers/auth.controller.js - OAuth Login with DEBUG
+
 export const oauthLogin = async (req, res) => {
     try {
+        console.log('\n🔵 ===== OAuth Login Request =====');
+        console.log('📋 Headers:', req.headers);
+
         const authHeader = req.headers.authorization;
 
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            console.log('❌ No Bearer token found');
             return res.status(401).json({
                 message: 'Missing Firebase token'
             });
@@ -477,39 +575,92 @@ export const oauthLogin = async (req, res) => {
 
         const firebaseToken = authHeader.split(' ')[1];
 
-        // Verify Firebase ID token
-        const decoded = await admin.auth().verifyIdToken(firebaseToken);
+        console.log('🔑 Token received:');
+        console.log('   - Length:', firebaseToken.length);
+        console.log('   - First 100 chars:', firebaseToken.substring(0, 100));
+        console.log('   - Last 50 chars:', firebaseToken.substring(firebaseToken.length - 50));
+
+        // Check if it looks like a JWT
+        const parts = firebaseToken.split('.');
+        console.log('   - JWT parts:', parts.length, '(should be 3)');
+
+        if (parts.length === 3) {
+            try {
+                const header = JSON.parse(Buffer.from(parts[0], 'base64').toString());
+                console.log('   - JWT Header:', header);
+            } catch (e) {
+                console.log('   - Failed to decode JWT header:', e.message);
+            }
+        }
+
+        console.log('\n🔐 Attempting to verify token...');
+
+        let decoded;
+        try {
+            decoded = await admin.auth().verifyIdToken(firebaseToken);
+            console.log('✅ Token verified successfully!');
+        } catch (verifyError) {
+            console.error('❌ Token verification FAILED:');
+            console.error('   - Error code:', verifyError.code);
+            console.error('   - Error message:', verifyError.message);
+            console.error('   - Full error:', verifyError);
+
+            if (verifyError.code === 'auth/id-token-expired') {
+                return res.status(401).json({
+                    message: 'Token expired. Please sign in again.'
+                });
+            }
+            if (verifyError.code === 'auth/argument-error') {
+                return res.status(400).json({
+                    message: 'Invalid token format. Please try signing in again.',
+                    debug: process.env.NODE_ENV === 'development' ? {
+                        error: verifyError.message,
+                        tokenLength: firebaseToken.length,
+                        tokenParts: firebaseToken.split('.').length
+                    } : undefined
+                });
+            }
+
+            throw verifyError;
+        }
+
+        console.log('👤 Decoded token data:');
+        console.log('   - UID:', decoded.uid);
+        console.log('   - Email:', decoded.email);
+        console.log('   - Provider:', decoded.firebase?.sign_in_provider);
+        console.log('   - Email verified:', decoded.email_verified);
 
         const firebaseUid = decoded.uid;
         const email = decoded.email;
         const name = decoded.name || decoded.displayName || email?.split('@')[0] || 'User';
         const avatar = decoded.picture || '/avatars/avatar1.png';
 
-        // Determine provider
         const rawProvider = decoded.firebase?.sign_in_provider;
         let provider = 'email';
         if (rawProvider === 'google.com') provider = 'google';
         if (rawProvider === 'github.com') provider = 'github';
 
         if (!email) {
+            console.log('❌ No email in token');
             return res.status(400).json({
                 message: 'Email not available from OAuth provider'
             });
         }
 
-        // Find or create user
+        console.log('\n💾 Looking for user in database...');
         let user = await User.findOne({ email });
 
         if (user) {
-            // Update existing user if Firebase UID not set
+            console.log('✅ User found:', user.email);
             if (!user.firebaseUid) {
+                console.log('📝 Updating user with Firebase UID');
                 user.firebaseUid = firebaseUid;
                 user.oauthProvider = provider;
                 user.isEmailVerified = true;
                 await user.save();
             }
         } else {
-            // Create new user (password will be hashed by model)
+            console.log('📝 Creating new user');
             user = await User.create({
                 firebaseUid,
                 name,
@@ -519,10 +670,13 @@ export const oauthLogin = async (req, res) => {
                 oauthProvider: provider,
                 isEmailVerified: true
             });
+            console.log('✅ User created:', user.email);
         }
 
-        // Generate JWT token
         const token = generateToken(user._id);
+
+        console.log('✅ OAuth login successful!');
+        console.log('🔵 ===== End OAuth Login =====\n');
 
         res.json({
             success: true,
@@ -537,22 +691,14 @@ export const oauthLogin = async (req, res) => {
             }
         });
     } catch (error) {
-        console.error('OAuth login error:', error);
-
-        // Handle specific Firebase errors
-        if (error.code === 'auth/id-token-expired') {
-            return res.status(401).json({
-                message: 'Token expired. Please sign in again.'
-            });
-        }
-        if (error.code === 'auth/argument-error') {
-            return res.status(400).json({
-                message: 'Invalid token format'
-            });
-        }
+        console.error('\n❌ ===== OAuth Login Error =====');
+        console.error('Error:', error);
+        console.error('Stack:', error.stack);
+        console.error('===== End Error =====\n');
 
         res.status(500).json({
-            message: 'OAuth login failed. Please try again.'
+            message: 'OAuth login failed. Please try again.',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
         });
     }
 };

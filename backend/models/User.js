@@ -24,6 +24,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         default: 'https://via.placeholder.com/150'
     },
+    avatarPublicId: { type: String, default: '' },  // Cloudinary public_id for deletion
     role: {
         type: String,
         enum: ['user', 'admin'],
