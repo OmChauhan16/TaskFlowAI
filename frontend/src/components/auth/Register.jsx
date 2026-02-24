@@ -1281,7 +1281,7 @@ const Register = () => {
                         </div>
 
                         {/* Terms Checkbox */}
-                        <div className="flex items-start">
+                        {/* <div className="flex items-start">
                             <input
                                 type="checkbox"
                                 id="terms"
@@ -1299,7 +1299,7 @@ const Register = () => {
                                     Privacy Policy
                                 </a>
                             </label>
-                        </div>
+                        </div> */}
 
                         {/* Submit Button */}
                         <button

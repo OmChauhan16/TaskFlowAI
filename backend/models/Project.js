@@ -34,6 +34,14 @@ const projectSchema = new mongoose.Schema({
     color: {
         type: String,
         default: '#3b82f6'
+    },
+    dueDate: {
+        type: Date,
+        required: true
+    },
+    startDate: {
+        type: Date,
+        required: true
     }
 }, {
     timestamps: true

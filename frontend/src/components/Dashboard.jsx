@@ -886,7 +886,7 @@ const Dashboard = () => {
                 )}
 
                 {/* Empty State for New Users */}
-                {stats?.totalTasks === 0 && (
+                {/* {stats?.totalTasks === 0 && (
                     <div className="text-center py-12 bg-white rounded-xl shadow-sm mt-8">
                         <div className="text-6xl mb-4">📝</div>
                         <h3 className="text-xl font-semibold text-gray-700 mb-2">
@@ -910,7 +910,7 @@ const Dashboard = () => {
                             </button>
                         </div>
                     </div>
-                )}
+                )} */}
             </main>
         </div>
     );

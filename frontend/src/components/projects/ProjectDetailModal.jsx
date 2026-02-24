@@ -19,6 +19,7 @@ const ProjectDetailModal = ({ projectId, onClose, onProjectUpdated }) => {
         try {
             setLoading(true);
             const data = await getProject(projectId);
+
             setProject(data.project);
             setFormData({
                 name: data.project.name,
@@ -197,11 +198,11 @@ const ProjectDetailModal = ({ projectId, onClose, onProjectUpdated }) => {
                                 project.members.map((member) => (
                                     <div key={member._id} className="flex items-center gap-2 bg-gray-100 rounded-lg px-3 py-2">
                                         <img
-                                            src={member.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.name)}`}
+                                            src={member.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(member.user.name)}`}
                                             alt={member.name}
                                             className="w-6 h-6 rounded-full"
                                         />
-                                        <span className="text-sm">{member.name}</span>
+                                        <span className="text-sm">{member.user.name}</span>
                                     </div>
                                 ))
                             ) : (

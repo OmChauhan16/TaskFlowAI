@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import './App.css'
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom'
 import Login from './components/auth/Login'
@@ -14,9 +14,9 @@ import ResetPassword from './pages/ResetPassword'
 import QuickAddBar from './components/AI/QuickAddBar'
 import ProfilePage from './components/Profile'
 import { Toaster } from 'react-hot-toast'
-
+import { AuthContext } from './context/AuthContext'
 function App() {
-  const [count, setCount] = useState(0)
+  const { user } = useContext(AuthContext);
 
   return (
     <>
@@ -96,7 +96,7 @@ function App() {
 
           <Route path="/" element={<Navigate to="/dashboard" />} />
         </Routes>
-        <QuickAddBar />
+        {user && <QuickAddBar />}
       </BrowserRouter >
     </>
   )

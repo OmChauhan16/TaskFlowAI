@@ -7,7 +7,9 @@ import Task from '../models/Task.js';
 // @access  Private
 export const createProject = async (req, res) => {
     try {
-        const { name, description, color } = req.body;
+        const { name, description, color, deadline, startDate } = req.body;
+        console.log(deadline, 'deadline');
+        console.log(startDate, 'startDate');
 
         const project = await Project.create({
             name,
@@ -17,7 +19,9 @@ export const createProject = async (req, res) => {
             members: [{
                 user: req.user._id,
                 role: 'owner'
-            }]
+            }],
+            startDate: startDate,
+            dueDate: deadline
         });
 
         // Add project to user's projects array
@@ -99,6 +103,8 @@ export const getProjects = async (req, res) => {
                 };
             })
         );
+        console.log(projectsWithTaskCount, 'project');
+
 
         res.json({
             success: true,
@@ -160,7 +166,7 @@ export const getProject = async (req, res) => {
 // @access  Private
 export const updateProject = async (req, res) => {
     try {
-        const { name, description, color, status } = req.body;
+        const { name, description, color, status, dueDate } = req.body;
 
         let project = await Project.findById(req.params.id);
 
@@ -187,6 +193,7 @@ export const updateProject = async (req, res) => {
         project.description = description !== undefined ? description : project.description;
         project.color = color || project.color;
         project.status = status || project.status;
+        project.dueDate = dueDate || project.dueDate;
 
         await project.save();
 

@@ -2,8 +2,11 @@ import { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
+import { auth } from '../../config/firebase';
+import { setPersistence, browserLocalPersistence, browserSessionPersistence } from 'firebase/auth';
 
 const Login = () => {
+    
     const navigate = useNavigate();
     const { login, loginWithGoogle, loginWithGithub } = useContext(AuthContext);
     const [formData, setFormData] = useState({
@@ -46,10 +49,10 @@ const Login = () => {
 
         setErrors(newErrors);
 
-        if (Object.keys(newErrors).length > 0) {
-            const firstError = Object.values(newErrors)[0];
-            toast.error(firstError);
-        }
+        // if (Object.keys(newErrors).length > 0) {
+        //     const firstError = Object.values(newErrors)[0];
+        //     toast.error(firstError);
+        // }
 
         return Object.keys(newErrors).length === 0;
     };
@@ -64,6 +67,17 @@ const Login = () => {
         setLoading(true);
 
         try {
+            // await login(formData.email, formData.password);
+            // toast.success('Welcome back! 🎉');
+            // navigate('/dashboard');
+
+            // Set persistence BEFORE logging in
+            const persistence = rememberMe
+                ? browserLocalPersistence
+                : browserSessionPersistence;
+
+            await setPersistence(auth, persistence);
+
             await login(formData.email, formData.password);
             toast.success('Welcome back! 🎉');
             navigate('/dashboard');
@@ -118,7 +132,7 @@ const Login = () => {
         try {
             await loginWithGithub();
             console.log('welcome');
-            
+
             toast.success('Welcome! 🎉');
             navigate('/dashboard');
         } catch (error) {
@@ -220,8 +234,8 @@ const Login = () => {
                                     value={formData.email}
                                     onChange={handleChange}
                                     className={`w-full px-3 py-2 border rounded-lg outline-none transition ${errors.email
-                                            ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-transparent'
-                                            : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                                        ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-transparent'
+                                        : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
                                         }`}
                                     placeholder=""
                                 />
@@ -250,8 +264,8 @@ const Login = () => {
                                         value={formData.password}
                                         onChange={handleChange}
                                         className={`w-full px-3 py-2 pr-12 border rounded-lg outline-none transition ${errors.password
-                                                ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-transparent'
-                                                : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                                            ? 'border-red-500 focus:ring-2 focus:ring-red-500 focus:border-transparent'
+                                            : 'border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent'
                                             }`}
                                         placeholder=""
                                     />

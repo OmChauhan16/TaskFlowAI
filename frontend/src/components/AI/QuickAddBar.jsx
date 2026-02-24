@@ -614,7 +614,7 @@ const QuickAddBar = () => {
     const [projects, setProjects] = useState([]);
     const [selectedProject, setSelectedProject] = useState('');
     const [loadingProjects, setLoadingProjects] = useState(false);
-    const [creatingTask, setCreatingTask] = useState(false); // ← Add this
+    const [creatingTask, setCreatingTask] = useState(false); 
 
     const {
         parsedTask,

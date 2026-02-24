@@ -129,7 +129,7 @@
 import { useState, useEffect } from 'react';
 import { X, Users, Check } from 'lucide-react';
 import { createProject } from '../../services/projectService';
-import { getUsers } from '../../services/userService'; // You'll need this
+import { getUsers } from '../../services/userService'; 
 import toast from 'react-hot-toast';
 
 const CreateProjectModal = ({ onClose, onProjectCreated }) => {
