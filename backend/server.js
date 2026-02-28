@@ -30,11 +30,21 @@ console.log('CLOUDINARY_API_SECRET:', process.env.CLOUDINARY_API_SECRET ? 'EXIST
 console.log('==============================');
 
 // Socket.io setup
+// const io = new Server(httpServer, {
+//     cors: {
+//         origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+//         credentials: true
+//     }
+// });
+
 const io = new Server(httpServer, {
     cors: {
         origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+        methods: ['GET', 'POST'],
         credentials: true
-    }
+    },
+    transports: ['polling', 'websocket'],
+    allowEIO3: true
 });
 
 // Connect Database

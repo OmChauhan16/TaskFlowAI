@@ -13,6 +13,7 @@ import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import QuickAddBar from './components/AI/QuickAddBar'
 import ProfilePage from './components/Profile'
+import SettingsPage from './components/Settings'
 import { Toaster } from 'react-hot-toast'
 import { AuthContext } from './context/AuthContext'
 function App() {
@@ -71,6 +72,7 @@ function App() {
           <Route path='/auth/callback' element={<AuthCallback />} />
           <Route path='/forgot-password' element={<ForgotPassword />} />
           <Route path='/reset-password' element={<ResetPassword />} />
+          <Route path='/settings' element={<SettingsPage />} />
           <Route path='/dashboard'
             element={
               <PrivateRoute>
