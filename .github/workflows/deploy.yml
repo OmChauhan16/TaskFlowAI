@@ -103,6 +103,7 @@ jobs:
         run: |
           cat > frontend/.env << EOF
           VITE_API_URL=${{ secrets.VITE_API_URL }}
+          VITE_SOCKET_URL=${{ secrets.VITE_SOCKET_URL }}
           VITE_apiKey=${{ secrets.VITE_apiKey }}
           VITE_authDomain=${{ secrets.VITE_authDomain }}
           VITE_projectId=${{ secrets.VITE_projectId }}
