@@ -79,7 +79,7 @@ function App() {
                 <Dashboard />
               </PrivateRoute>
             }
-          />
+          /> 
           <Route path='/projects'
             element={
               <PrivateRoute>
