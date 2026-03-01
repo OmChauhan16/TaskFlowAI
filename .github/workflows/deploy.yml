@@ -1,3 +1,65 @@
+# name: Deploy TaskFlowAI
+
+# on:
+#   push:
+#     branches: [master]
+
+# jobs:
+#   deploy-backend:
+#     name: Deploy Backend to EC2
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v3
+
+#       - name: Deploy to EC2 via SSH
+#         uses: appleboy/ssh-action@master
+#         with:
+#           host: ${{ secrets.EC2_HOST }}
+#           username: ${{ secrets.EC2_USER }}
+#           key: ${{ secrets.EC2_KEY }}
+#           script: |
+#             cd /home/ec2-user/TaskFlowAI
+#             git pull origin master
+#             cd backend
+#             npm install
+#             pm2 restart backend
+
+#   deploy-frontend:
+#     name: Deploy Frontend to S3
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v3
+
+#       - name: Setup Node.js
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: 20
+
+#       - name: Install and Build
+#         run: |
+#           cd frontend
+#           npm install
+#           npm run build
+
+#       - name: Deploy to S3
+#         uses: aws-actions/configure-aws-credentials@v2
+#         with:
+#           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region: eu-north-1
+
+#       - name: Sync to S3
+#         run: |
+#           aws s3 sync frontend/dist s3://${{ secrets.S3_BUCKET }} --delete
+
+
+
+
+
+
+
 name: Deploy TaskFlowAI
 
 on:
@@ -37,13 +99,26 @@ jobs:
         with:
           node-version: 20
 
+      - name: Create .env file
+        run: |
+          cat > frontend/.env << EOF
+          VITE_API_URL=${{ secrets.VITE_API_URL }}
+          VITE_apiKey=${{ secrets.VITE_apiKey }}
+          VITE_authDomain=${{ secrets.VITE_authDomain }}
+          VITE_projectId=${{ secrets.VITE_projectId }}
+          VITE_storageBucket=${{ secrets.VITE_storageBucket }}
+          VITE_messagingSenderId=${{ secrets.VITE_messagingSenderId }}
+          VITE_appId=${{ secrets.VITE_appId }}
+          VITE_measurementId=${{ secrets.VITE_measurementId }}
+          EOF
+
       - name: Install and Build
         run: |
           cd frontend
           npm install
           npm run build
 
-      - name: Deploy to S3
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
